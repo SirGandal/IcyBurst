@@ -8,8 +8,9 @@ from genericpath import exists
 BASE_FILE_NAME = raw_input('Enter the base filename of the CSV file (If you enter FILENAME the script will try to load FILENAME (0).csv and so on with incremental numbers):').strip()
 DOWNLOAD_PATH = raw_input('Enter images relative download destination:').strip()
 
-if exists(DOWNLOAD_PATH):
-	print "Images destination (" + DOWNLOAD_PATH + ") doesn't exist"
+if not os.path.isdir (DOWNLOAD_PATH):
+	print "Images destination (" + DOWNLOAD_PATH + ") doesn't exist. Creating it..."
+	os.makedirs(DOWNLOAD_PATH)
 
 fileIndex = 0
 
