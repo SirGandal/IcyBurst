@@ -87,3 +87,20 @@ ENV/
 
 # Rope project settings
 .ropeproject
+.DS_Store
+*.csv
+images
+.pydevproject
+.project
+secrets.json
+twitter_usedImages.txt
+twitter_usedQuotes.txt
+.gitignore
+Example-BulkUpload.py
+README.md
+requirements.txt
+response_example.json
+test.py
+InstagramAPIpython/examples
+instagram_usedImages.txt
+instagram_usedQuotes.txt
