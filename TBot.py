@@ -1,5 +1,6 @@
-from twython import Twython
+from twython import Twython, TwythonError
 from random import randint
+import random
 from common import *
 import threading
 from utils import getFileNameFromPath, loadQuotesFromFiles
@@ -9,7 +10,6 @@ class TBot:
     
     TAGS = []
     MENTIONS = []
-    #TAGS = "#aaaaaaaaaaaaaaaaaaaaaaa #bbbbbbbbbbbb #oufulmucht"
     MAX_STATUS_LENGTH = 140
     TWITTER_USED_QUOTES_FILENAME = ""
     TWITTER_USED_IMAGES_FILENAME = ""
@@ -18,6 +18,7 @@ class TBot:
     APP_SECRET = ""
     OAUTH_TOKEN = ""
     OAUTH_TOKEN_SECRET = ""
+    MAX_IMAGE_SIZE = 3145728
     twitter = None
     
     def __init__(self, APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET):
@@ -66,7 +67,7 @@ class TBot:
         
         return TBot(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
     
-    def run(self, minWait, maxWait, images, quotes, preDefinedStatuses, debug):        
+    def run(self, minWait, maxWait, images, quotes, preDefinedStatuses, defaultStatuses, supervised, debug):        
         n = randint(minWait, maxWait)
         print ("Twitter - Sleep upload for seconds: " + str(n))
         
@@ -74,11 +75,19 @@ class TBot:
         if len(images) == 0:
             print "Twitter Bot terminated."
             return
-        threading.Timer(n, self.run, [minWait, maxWait, images, quotes, preDefinedStatuses, debug]).start()        
+        threading.Timer(n, self.run, [minWait, maxWait, images, quotes, preDefinedStatuses, defaultStatuses, supervised, debug]).start()        
         image = ""
-        print "========================================================================" 
-        while raw_input("Twitter - Picked image is: " + image + ". Change?") == "y":
-            image = images[randint(0, len(images))]
+        imageSize = self.MAX_IMAGE_SIZE + 1
+        
+        while imageSize > self.MAX_IMAGE_SIZE:
+            if supervised:
+                print "========================================================================" 
+                while raw_input("Twitter - Picked image is: " + image + ". Change?") == "y":
+                    image = random.choice(images)
+            else:
+                image = random.choice(images)
+            imageSize = os.stat(image).st_size
+            print str(imageSize) +  " bytes"
         
         # if we don't have a quote pre-defined for this picture let's pick a random one that
         # we don't have already used
@@ -90,7 +99,7 @@ class TBot:
                 continue
         
         randomQuote = []
-        if foundPreDefinedStatus == "":
+        if foundPreDefinedStatus == "" and supervised:
             
             # if we run out of quotes, let's recycle old ones
             if len(quotes) == 0:
@@ -103,8 +112,7 @@ class TBot:
             while keepLookinForQuote:
                 status = 'a'*300
                 while not self.isStatusValid(status):
-                    quoteIndex = randint(0, len(quotes)-1)
-                    randomQuote = quotes[quoteIndex]
+                    randomQuote = random.choice(quotes)
                     status = getStatusFromRandomQuote(randomQuote, self.TAGS, self.MENTIONS)
                 print "========================================================================" 
                 keepLookinForQuote = raw_input("Twitter - The random quote is: " + randomQuote[0] + ". Is that okay?") != "y"
@@ -113,6 +121,9 @@ class TBot:
                 twitterUsedQuotes.write(randomQuote[0]+"\n")
             #remove the used quote from the list of usable ones
             quotes.remove(randomQuote)
+        else:
+            if foundPreDefinedStatus == "":
+                status = random.choice(defaultStatuses)
             
         with open(self.TWITTER_USED_IMAGES_FILENAME, "a+") as twitterUsedImages:
             twitterUsedImages.write(getFileNameFromPath(image)+"\n")
@@ -125,9 +136,27 @@ class TBot:
         print ("Twitter - Now Uploading photo " + getFileNameFromPath(image))
         print ("Twitter - Status " + status)
         
+        tryCount = 0
         if not debug:
-            response = self.twitter.upload_media(media=photo)
-            print response
-            self.twitter.update_status(status=status, media_ids=[response['media_id']])
+            
+            uploadError = "Error"
+            
+            while uploadError != "" and tryCount <= 3:
+                tryCount = tryCount + 1
+                try:
+                    response = self.twitter.upload_media(media=photo)
+                    print response
+                    uploadError = ""
+                except TwythonError as e:
+                    uploadError = str(e.error_code)
+                    print "There was an error while trying to upload a photo. Code: " + uploadError
+                    print "Trying twitter photo upload again..."
+            if tryCount <= 3:
+                try:
+                    self.twitter.update_status(status=status, media_ids=[response['media_id']])
+                except TwythonError:
+                    print "There was an error while trying to upload a tweet"
+            
+                
             
        

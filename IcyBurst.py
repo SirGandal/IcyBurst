@@ -18,12 +18,20 @@ with open("config.json") as configJson:
     PHOTO_FOLDERS = config["photoFoldersPath"]
     QUOTES_FILENAMES = config["quotesFoldersPath"]
     GOOGLE_DRIVE_PATH = config["googleDriveInstagramFolderPath"]
+    # supervised refers to a state where the user is at the computer
+    # and can decide if a photo with a given quote should be uploaded or not
+    TWITTER_SUPERVISED = config["twitter"]["supervised"]
+    TWITTER_ENABLED = config["twitter"]["enabled"]
     TWITTER_USED_QUOTES_FILENAME = config["twitter"]["usedQuotesFilename"]
     TWITTER_USED_IMAGES_FILENAME = config["twitter"]["usedImagesFilename"]
+    TWITTER_DEFAULT_STATUSES = config["twitter"]["defaultStatuses"]
     TWITTER_TAGS = config["twitter"]["tags"]
     TWITTER_MENTIONS = config["twitter"]["mentions"]
+    INSTAGRAM_ENABLED = config["instagram"]["enabled"]
+    INSTAGRAM_SUPERVISED = config["instagram"]["supervised"]
     INSTAGRAM_USED_QUOTES_FILENAME = config["instagram"]["usedQuotesFilename"]
     INSTAGRAM_USED_IMAGES_FILENAME = config["instagram"]["usedImagesFilename"]
+    INSTAGRAM_DEFAULT_STATUSES = config["instagram"]["defaultStatuses"]
     INSTAGRAM_TAGS = config["instagram"]["tags"]
     INSTAGRAM_MENTIONS = config["instagram"]["mentions"]
     UPLOAD_MIN_WAIT = config["minWait"]
@@ -36,10 +44,12 @@ with open("config.json") as configJson:
     print "googleDriveInstagramFolderPath" + " " + str(config["googleDriveInstagramFolderPath"])
     print "minWait" + " " + str(config["minWait"])
     print "maxWait" + " " + str(config["maxWait"])
+    print "twitter usedQuotesFilename" + " " + str(config["twitter"]["supervised"])
     print "twitter usedQuotesFilename" + " " + str(config["twitter"]["usedQuotesFilename"])
     print "twitter usedImagesFilename" + " " + str(config["twitter"]["usedImagesFilename"])
     print "twitter tags" + " " + str(config["twitter"]["tags"])
     print "twitter mentions" + " " + str(config["twitter"]["mentions"])
+    print "instagram usedQuotesFilename" + " " + str(config["instagram"]["supervised"])
     print "instagram usedQuotesFilename" + " " + str(config["instagram"]["usedQuotesFilename"])
     print "instagram usedImagesFilename" + " " + str(config["instagram"]["usedImagesFilename"])
     print "instagram tags" + " " + str(config["instagram"]["tags"])
@@ -96,7 +106,7 @@ else:
     print "Initializing Twitter Bot..."
     twitterBot = TBot(twitter_APP_KEY, twitter_APP_SECRET, twitter_OAUTH_TOKEN, twitter_OAUTH_TOKEN_SECRET)
 
-if raw_input("Initialize Instagram Bot? y/n: ") == "y":
+if INSTAGRAM_ENABLED:
     if instagram_username != "" and instagram_password != "":
         print "Initializing Instagram Bot..."
         instagramBot = IBot(instagram_username, instagram_password)
@@ -116,8 +126,7 @@ for imageText in preDefinedStatuses:
     if not TBot.isStatusValid(twitterBot, getStatusFromText(imageText[1], TBot.MENTIONS, TBot.TAGS)):
         print imageText[1] + " too long!"
  
-if twitterBot is not None and raw_input("Run Twitter Bot? y/n: ") == "y":
-    
+if twitterBot is not None and TWITTER_ENABLED:
     # set file locations for writing used stuff
     twitterBot.TWITTER_USED_IMAGES_FILENAME = TWITTER_USED_IMAGES_FILENAME
     twitterBot.TWITTER_USED_QUOTES_FILENAME = TWITTER_USED_QUOTES_FILENAME
@@ -130,10 +139,9 @@ if twitterBot is not None and raw_input("Run Twitter Bot? y/n: ") == "y":
     images = removeUsedImages(images, TWITTER_USED_IMAGES_FILENAME)
     
     if len(images) > 0:
-        twitterBot.run(UPLOAD_MIN_WAIT, UPLOAD_MAX_WAIT, list(images), list(twitterQuotes), list(preDefinedStatuses), DEBUG_MODE)
+        twitterBot.run(UPLOAD_MIN_WAIT, UPLOAD_MAX_WAIT, list(images), list(twitterQuotes), list(preDefinedStatuses), list(TWITTER_DEFAULT_STATUSES), INSTAGRAM_SUPERVISED, DEBUG_MODE)
 
-if instagramBot is not None and raw_input("Run Instagram Bot? y/n: ") == "y":
-    
+if instagramBot is not None and INSTAGRAM_ENABLED:    
     # set file locations for writing used stuff
     instagramBot.INSTAGRAM_USED_IMAGES_FILENAME = INSTAGRAM_USED_IMAGES_FILENAME
     instagramBot.INSTAGRAM_USED_QUOTES_FILENAME = INSTAGRAM_USED_QUOTES_FILENAME
@@ -146,7 +154,7 @@ if instagramBot is not None and raw_input("Run Instagram Bot? y/n: ") == "y":
     images = removeUsedImages(images, INSTAGRAM_USED_IMAGES_FILENAME)
     
     if len(images) > 0:
-        instagramBot.run(UPLOAD_MIN_WAIT, UPLOAD_MAX_WAIT, list(images), list(quotes), list(preDefinedStatuses), DEBUG_MODE)
+        instagramBot.run(UPLOAD_MIN_WAIT, UPLOAD_MAX_WAIT, list(images), list(quotes), list(preDefinedStatuses), list(INSTAGRAM_DEFAULT_STATUSES), TWITTER_SUPERVISED, DEBUG_MODE)
 
 
 
