@@ -134,12 +134,12 @@ if twitterBot is not None and TWITTER_ENABLED:
     twitterBot.MENTIONS = TWITTER_MENTIONS
     twitterBot.QUOTES_FILENAMES = QUOTES_FILENAMES
     
-    quotes = removeUsedQuotes(quotes, TWITTER_USED_QUOTES_FILENAME)
+    twitterQuotes = removeUsedQuotes(twitterQuotes, TWITTER_USED_QUOTES_FILENAME)
         
-    images = removeUsedImages(images, TWITTER_USED_IMAGES_FILENAME)
+    twitterImages = removeUsedImages(images, TWITTER_USED_IMAGES_FILENAME)
     
-    if len(images) > 0:
-        twitterBot.run(UPLOAD_MIN_WAIT, UPLOAD_MAX_WAIT, list(images), list(twitterQuotes), list(preDefinedStatuses), list(TWITTER_DEFAULT_STATUSES), INSTAGRAM_SUPERVISED, DEBUG_MODE)
+    if len(twitterImages) > 0:
+        twitterBot.run(UPLOAD_MIN_WAIT, UPLOAD_MAX_WAIT, list(twitterImages), list(twitterQuotes), list(preDefinedStatuses), list(TWITTER_DEFAULT_STATUSES), INSTAGRAM_SUPERVISED, DEBUG_MODE)
 
 if instagramBot is not None and INSTAGRAM_ENABLED:    
     # set file locations for writing used stuff
@@ -149,12 +149,12 @@ if instagramBot is not None and INSTAGRAM_ENABLED:
     instagramBot.TAGS = INSTAGRAM_TAGS
     instagramBot.MENTIONS = INSTAGRAM_MENTIONS
     
-    quotes = removeUsedQuotes(quotes, INSTAGRAM_USED_QUOTES_FILENAME)
+    instagramQuotes = removeUsedQuotes(quotes, INSTAGRAM_USED_QUOTES_FILENAME)
     
-    images = removeUsedImages(images, INSTAGRAM_USED_IMAGES_FILENAME)
+    instagramImages = removeUsedImages(images, INSTAGRAM_USED_IMAGES_FILENAME)
     
     if len(images) > 0:
-        instagramBot.run(UPLOAD_MIN_WAIT, UPLOAD_MAX_WAIT, list(images), list(quotes), list(preDefinedStatuses), list(INSTAGRAM_DEFAULT_STATUSES), TWITTER_SUPERVISED, DEBUG_MODE)
+        instagramBot.run(UPLOAD_MIN_WAIT, UPLOAD_MAX_WAIT, list(instagramImages), list(instagramQuotes), list(preDefinedStatuses), list(INSTAGRAM_DEFAULT_STATUSES), TWITTER_SUPERVISED, DEBUG_MODE)
 
 
 
