@@ -2,6 +2,14 @@ import json
 import csv
 import os
 from os.path import isfile, join
+
+#===============================================================================
+# If NeedDownloadError('Need ffmpeg exe. ' NeedDownloadError: Need ffmpeg exe)
+# uncomment the following lines and run the code again
+# import imageio
+# imageio.plugins.ffmpeg.download()
+#===============================================================================
+
 from TBot import TBot
 from IBot import IBot
 from common import *
