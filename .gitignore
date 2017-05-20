@@ -98,8 +98,10 @@ twitter_usedQuotes.txt
 .gitignore
 Example-BulkUpload.py
 README.md
+requirements.txt
 response_example.json
 test.py
 InstagramAPIpython/examples
 instagram_usedImages.txt
 instagram_usedQuotes.txt
+config.json
