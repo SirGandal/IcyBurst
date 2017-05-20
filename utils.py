@@ -42,7 +42,7 @@ def loadImagesFromFolders(PHOTO_FOLDERS):
     print "Scanning directories for images..."
     images = []
     for folder in PHOTO_FOLDERS:
-        folderImages =  [join(folder, filename) for filename in os.listdir(folder) if isfile(join(folder, filename)) and not filename.startswith(".")]
+        folderImages =  [folder+"/"+filename for filename in os.listdir(folder) if isfile(join(folder, filename)) and not filename.startswith(".")]
         print str(len(folderImages)) + " images found in " + folder
         images = images + folderImages
         
