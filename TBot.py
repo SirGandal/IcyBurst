@@ -42,25 +42,26 @@ class TBot:
         print str(len(twitterQuotes)) + " twitter quotes left."
         return twitterQuotes
     
-    def authorizeApplicationAndInitialize(self, APP_KEY, APP_SECRET):
-        self.twitter = Twython(APP_KEY, APP_SECRET)
+    @staticmethod
+    def authorizeApplicationAndInitialize(APP_KEY, APP_SECRET):
+        twitter = Twython(APP_KEY, APP_SECRET)
 
-        auth = TBot.twitter.get_authentication_tokens()
+        auth = twitter.get_authentication_tokens()
     
         OAUTH_TOKEN = auth['oauth_token']
         OAUTH_TOKEN_SECRET = auth['oauth_token_secret']
     
-        self.twitter = Twython(APP_KEY, APP_SECRET,OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+        twitter = Twython(APP_KEY, APP_SECRET,OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
     
         print "Authorize app here: " + auth['auth_url']
     
         oauth_verifier=raw_input('Enter the PIN:')
     
-        self.twitter = Twython(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+        twitter = Twython(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
     
         print "Authenticating..."
     
-        final_step = TBot.twitter.get_authorized_tokens(oauth_verifier)
+        final_step = twitter.get_authorized_tokens(oauth_verifier)
     
         OAUTH_TOKEN = final_step['oauth_token']
         OAUTH_TOKEN_SECRET = final_step['oauth_token_secret']
@@ -154,8 +155,8 @@ class TBot:
             if tryCount <= 3:
                 try:
                     self.twitter.update_status(status=status, media_ids=[response['media_id']])
-                except TwythonError:
-                    print "There was an error while trying to upload a tweet"
+                except TwythonError as e:
+                    print "There was an error while trying to upload a tweet. Code: " + str(e.error_code)
             
                 
             
