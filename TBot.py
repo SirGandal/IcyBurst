@@ -72,23 +72,36 @@ class TBot:
         n = randint(minWait, maxWait)
         print ("Twitter - Sleep upload for seconds: " + str(n))
         
+        imagesLessThanMaxSize = [image for image in images if os.stat(image).st_size < self.MAX_IMAGE_SIZE]
+        
         # no more images available
-        if len(images) == 0:
-            print "Twitter Bot terminated."
+        if len(imagesLessThanMaxSize) == 0:
+            print "No more images left to upload. Twitter Bot terminated."
             return
         threading.Timer(n, self.run, [minWait, maxWait, images, quotes, preDefinedStatuses, defaultStatuses, supervised, debug]).start()        
         image = ""
-        imageSize = self.MAX_IMAGE_SIZE + 1
         
-        while imageSize > self.MAX_IMAGE_SIZE:
-            if supervised:
-                print "========================================================================" 
-                while raw_input("Twitter - Picked image is: " + image + ". Change?") == "y":
-                    image = random.choice(images)
-            else:
-                image = random.choice(images)
-            imageSize = os.stat(image).st_size
-            print str(imageSize) +  " bytes"
+        if supervised:
+            print "========================================================================" 
+            while raw_input("Twitter - Picked image is: " + image + ". Change?") == "y":
+                image = random.choice(imagesLessThanMaxSize)
+        else:
+            image = random.choice(imagesLessThanMaxSize)
+        
+        #=======================================================================
+        # imageSize = self.MAX_IMAGE_SIZE + 1
+        # 
+        # while imageSize > self.MAX_IMAGE_SIZE:
+        #     # Todo we end up in infinite loop when all the images left are more than the max size, how do we determine the end?
+        #     if supervised:
+        #         print "========================================================================" 
+        #         while raw_input("Twitter - Picked image is: " + image + ". Change?") == "y":
+        #             image = random.choice(images)
+        #     else:
+        #         image = random.choice(images)
+        #     imageSize = os.stat(image).st_size
+        #     print str(imageSize) +  " bytes"
+        #=======================================================================
         
         # if we don't have a quote pre-defined for this picture let's pick a random one that
         # we don't have already used
